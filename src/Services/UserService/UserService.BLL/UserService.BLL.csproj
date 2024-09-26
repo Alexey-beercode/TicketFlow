@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Exceptions\" />
       <Folder Include="Infrastructure\Validators\" />
       <Folder Include="Services\" />
     </ItemGroup>
