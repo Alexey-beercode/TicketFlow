@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using UserService.DLL.Configuration.Database;
 using UserService.DLL.Extensions;
 using UserService.Domain.Entities;
-using UserService.Domain.Entities.Implementations;
 
 namespace UserService.DLL.Configuration;
 
@@ -17,6 +17,8 @@ public class UserDbContext:IdentityDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfiguration(new UserConfiguration());
+        modelBuilder.ApplyConfiguration(new RoleConfiguration());
         modelBuilder.SeedUsersRolesData();
     }
 }

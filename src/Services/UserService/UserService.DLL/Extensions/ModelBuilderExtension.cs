@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using UserService.Domain.Entities;
 using System;
-using UserService.Domain.Entities.Implementations;
 
 namespace UserService.DLL.Extensions
 {

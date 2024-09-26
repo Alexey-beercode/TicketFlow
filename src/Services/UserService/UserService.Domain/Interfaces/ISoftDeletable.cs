@@ -1,4 +1,4 @@
-﻿namespace UserService.Domain.Entities.Interfaces;
+﻿namespace UserService.Domain.Interfaces;
 
 public interface ISoftDeletable
 {

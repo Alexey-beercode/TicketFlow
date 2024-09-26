@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using UserService.DLL.Configuration;
 using UserService.DLL.Repositories.Interfaces;
-using UserService.Domain.Entities.Interfaces;
+using UserService.Domain.Interfaces;
 
 namespace UserService.DLL.Repositories.Implementations;
 

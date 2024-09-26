@@ -1,6 +1,6 @@
 ﻿using UserService.DLL.Configuration;
 using UserService.DLL.Repositories.Interfaces;
-using UserService.Domain.Entities.Implementations;
+using UserService.Domain.Entities;
 
 namespace UserService.DLL.Repositories.Implementations;
 

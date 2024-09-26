@@ -1,6 +1,4 @@
-﻿
-
-using UserService.Domain.Entities.Interfaces;
+﻿using UserService.Domain.Interfaces;
 
 namespace UserService.DLL.Repositories.Interfaces;
 

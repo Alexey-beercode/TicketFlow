@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using UserService.Domain.Entities.Interfaces;
+using UserService.Domain.Interfaces;
 
-namespace UserService.Domain.Entities.Implementations;
+namespace UserService.Domain.Entities;
 
 public class User:IdentityUser<Guid>,ISoftDeletable,IHasId
 {
