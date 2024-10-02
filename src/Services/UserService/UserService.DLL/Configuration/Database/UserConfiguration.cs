@@ -19,9 +19,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired()
             .HasMaxLength(256);
 
-        builder.Property(u => u.RefreshToken)
-            .HasMaxLength(500);
-
         builder.Property(u => u.IsDeleted)
             .HasDefaultValue(false);
 

@@ -18,8 +18,8 @@ public class UserRepository:BaseRepository<User>,IUserRepository
         _dbContext.Users.Update(entity);
     }
 
-    public async Task<User> GetByRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
+    public async Task<User> GetByNameAsync(string userName, CancellationToken cancellationToken)
     {
-        return await _dbContext.Users.FirstOrDefaultAsync(u => !u.IsDeleted && u.RefreshToken == refreshToken);
+        return await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.UserName == userName && !u.IsDeleted);
     }
 }

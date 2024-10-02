@@ -1,6 +1,8 @@
-﻿namespace BookingService.Infrastructure.Repositories.Implementations;
+﻿using BookingService.Application.Repositories.Interfaces;
 
-public class BaseRepository
+namespace BookingService.Infrastructure.Repositories.Implementations;
+
+public class BaseRepository:IBaseRepository
 {
     
 }

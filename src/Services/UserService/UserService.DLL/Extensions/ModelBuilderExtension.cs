@@ -31,8 +31,6 @@ namespace UserService.DLL.Extensions
                 PasswordHash = hasher.HashPassword(null, "Admin14689"), 
                 SecurityStamp = Guid.NewGuid().ToString(),
                 IsDeleted = false,
-                RefreshToken = "",
-                RefreshTokenExpiryTime = DateTime.MinValue
             };
             
             modelBuilder.Entity<Role>().HasData(adminRole);
