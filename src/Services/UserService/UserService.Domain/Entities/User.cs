@@ -7,5 +7,5 @@ public class User:IdentityUser<Guid>,ISoftDeletable,IHasId
 {
     public bool IsDeleted { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime DeletedAt { get; set; }
+    public DateTime? DeletedAt { get; set; } 
 }

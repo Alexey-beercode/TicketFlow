@@ -6,7 +6,7 @@ using UserService.Domain.Entities;
 
 namespace UserService.DLL.Configuration;
 
-public class UserDbContext:IdentityDbContext
+public class UserDbContext:IdentityDbContext<User,Role,Guid>
 {
     public UserDbContext(DbContextOptions<UserDbContext> options) : base(options)
     {
