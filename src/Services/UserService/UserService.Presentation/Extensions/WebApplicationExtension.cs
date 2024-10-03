@@ -28,6 +28,7 @@ public static class WebApplicationExtension
                 .AllowCredentials();
         }); 
         
+        app.UseIdentityServer();
         app.UseAuthentication();
         app.UseAuthorization();
 
@@ -35,7 +36,6 @@ public static class WebApplicationExtension
         
         app.UseMiddleware<ExceptionHandlingMiddleware>();
         
-        var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
-        logger.Log(LogLevel.Info, "Program starting");
+        
     }
 }

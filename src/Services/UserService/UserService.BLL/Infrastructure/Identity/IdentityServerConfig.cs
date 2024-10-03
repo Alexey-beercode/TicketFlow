@@ -20,14 +20,14 @@ public class IdentityServerConfig
             {
                 ClientId = _configuration["IdentityServer:ClientId"],
                 ClientSecrets = { new Secret(_configuration["IdentityServer:ClientSecret"].Sha256()) },
-                AllowedGrantTypes = GrantTypes.ResourceOwnerPassword, 
-                AllowedScopes = { _configuration["IdentityServer:Scope"] },
-                AccessTokenLifetime = 3600, 
-                AllowOfflineAccess = true,  
-                RefreshTokenUsage = TokenUsage.OneTimeOnly, 
-                RefreshTokenExpiration = TokenExpiration.Sliding, 
-                AbsoluteRefreshTokenLifetime = 2592000, 
-                SlidingRefreshTokenLifetime = 1296000,
+                AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
+                AllowedScopes = { _configuration["IdentityServer:Scope"], "openid", "profile" }, 
+                AccessTokenLifetime = int.Parse(_configuration["IdentityServer:AccessTokenLifetime"]),
+                AllowOfflineAccess = true,
+                RefreshTokenUsage = TokenUsage.OneTimeOnly,
+                RefreshTokenExpiration = TokenExpiration.Sliding,
+                AbsoluteRefreshTokenLifetime = int.Parse(_configuration["IdentityServer:RefreshTokenLifetime"]),
+                SlidingRefreshTokenLifetime = int.Parse(_configuration["IdentityServer:SlidingRefreshTokenLifetime"]),
             }
         };
     }

@@ -6,6 +6,7 @@ using UserService.BLL.DTOs.Request.User;
 using UserService.BLL.DTOs.Response.Token;
 using UserService.BLL.Exceptions;
 using UserService.BLL.Interfaces;
+using UserService.DLL.Repositories.Interfaces;
 using UserService.Domain.Entities;
 
 namespace UserService.BLL.Services;
@@ -16,13 +17,15 @@ public class AuthService:IAuthService
     private readonly IMapper _mapper;
     private readonly UserManager<User> _userManager;
     private readonly ITokenService _tokenService;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public AuthService(ILogger<AuthService> logger, IMapper mapper, UserManager<User> userManager, ITokenService tokenService)
+    public AuthService(ILogger<AuthService> logger, IMapper mapper, UserManager<User> userManager, ITokenService tokenService, IUnitOfWork unitOfWork)
     {
         _logger = logger;
         _mapper = mapper;
         _userManager = userManager;
         _tokenService = tokenService;
+        _unitOfWork = unitOfWork;
     }
 
     private void EnsureSuccessOrThrow(IdentityResult identityResult, string operation = "Operation")
@@ -85,11 +88,18 @@ public class AuthService:IAuthService
 
     public async Task<TokenDto> RegisterAsync(RegisterUserDto registerUserDto, CancellationToken cancellationToken = default)
     {
+        var userFromDb = await _unitOfWork.Users.GetByNameAsync(registerUserDto.Username, cancellationToken);
+        if (userFromDb != null)
+        {
+            throw new AlreadyExistsException("user", "username", registerUserDto.Username);
+        }
         var user = _mapper.Map<User>(registerUserDto);
-    
+
         var result = await _userManager.CreateAsync(user, registerUserDto.Password);
         EnsureSuccessOrThrow(result, "User registration");
-    
+        
+        await _userManager.AddToRoleAsync(user, "Resident");
+
         return await AuthenticateAsync(_mapper.Map<LoginDto>(registerUserDto));
     }
 }

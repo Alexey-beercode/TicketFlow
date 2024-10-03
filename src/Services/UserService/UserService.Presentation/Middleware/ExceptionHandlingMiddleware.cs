@@ -65,17 +65,16 @@ public class ExceptionHandlingMiddleware
                 response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 break;
         }
-
-        var exceptionMessage = exception.Message;
+        
         
         var result = JsonConvert.SerializeObject(new 
         {
-            error = exceptionMessage,
+            error = exception.Message,
             details = exception.StackTrace
         });
         
-        _logger.Log(LogLevel.Error,result);
+        _logger.LogError(exception.Message);
         
-        return context.Response.WriteAsync(exceptionMessage);
+        return context.Response.WriteAsync(result);
     }
 }

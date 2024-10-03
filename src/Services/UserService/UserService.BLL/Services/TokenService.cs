@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Duende.IdentityServer.Models;
 using IdentityModel.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -29,27 +30,34 @@ public class TokenService:ITokenService
         var disco = await client.GetDiscoveryDocumentAsync(_configuration["IdentityServer:Authority"]);
 
         if (disco.IsError) throw new Exception(disco.Error);
+        var address = disco.TokenEndpoint;
 
         var tokenResponse = await client.RequestPasswordTokenAsync(new PasswordTokenRequest
         {
-            Address = disco.TokenEndpoint,
+            Address = address,
             ClientId = _configuration["IdentityServer:ClientId"],
             ClientSecret = _configuration["IdentityServer:ClientSecret"],
-            Scope = _configuration["IdentityServer:Scope"],
-            Password = loginDto.Password,
-            UserName = loginDto.UserName
+            Scope = $"{_configuration["IdentityServer:Scope"]} openid profile offline_access", 
+            UserName = loginDto.UserName,
+            Password = loginDto.Password
         });
 
-        if (tokenResponse.IsError) throw new Exception(tokenResponse.Error);
+
+        if (tokenResponse.IsError) 
+        {
+            _logger.LogError("Token request failed: {Error}", tokenResponse.Error);
+            throw new Exception(tokenResponse.Error);
+        }
 
         _logger.LogInformation("Successful authorization by user with name : {LoginDtoUserName}", loginDto.UserName);
-        
+    
         return _mapper.Map<TokenDto>(tokenResponse);
     }
+    
     public async Task<TokenRevocationResponse> RevokeTokenAsync(string refreshToken,CancellationToken cancellationToken=default)
     {
         var client = _httpClientFactory.CreateClient();
-        var disco = await client.GetDiscoveryDocumentAsync(_configuration["IdentityServer:Authority"]);
+        var disco = await client.GetDiscoveryDocumentAsync("https://localhost:44334");
 
         if (disco.IsError) throw new Exception(disco.Error);
 
