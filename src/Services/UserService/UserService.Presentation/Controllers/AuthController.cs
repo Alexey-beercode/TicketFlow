@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using UserService.BLL.DTOs.Request.Token;
 using UserService.BLL.DTOs.Request.User;
 using UserService.BLL.Interfaces;
 using UserService.Domain.Helpers;
@@ -47,12 +48,12 @@ public class AuthController:ControllerBase
 
     [Authorize]
     [HttpPut("logout")]
-    public async Task<IActionResult> LogoutAsync([FromBody] string refreshToken,
+    public async Task<IActionResult> LogoutAsync([FromBody]RefreshTokenDto refreshTokenDto,
         CancellationToken cancellationToken = default)
     {
         _loggerHelper.LogStartRequest("logout");
         
-        await _authService.LogoutAsync(refreshToken, cancellationToken);
+        await _authService.LogoutAsync(refreshTokenDto.RefreshToken, cancellationToken);
         
         _loggerHelper.LogEndOfOperation("logging out","return ok response");
         return Ok();
@@ -69,5 +70,18 @@ public class AuthController:ControllerBase
         
         _loggerHelper.LogEndOfOperation("changing password","return ok response");
         return Ok();
+    }
+
+    [HttpPut("refreshToken")]
+    public async Task<IActionResult> RefreshTokenAsync([FromBody]RefreshTokenDto refreshTokenDto,
+        CancellationToken cancellationToken = default)
+    {
+        _loggerHelper.LogStartRequest("refresh token");
+
+        var authDto=await _authService.RefreshTokenAsync(refreshTokenDto.RefreshToken, cancellationToken);
+        
+        _loggerHelper.LogEndOfOperation("changing password","return auth dto with ok response");
+
+        return Ok(authDto);
     }
 }

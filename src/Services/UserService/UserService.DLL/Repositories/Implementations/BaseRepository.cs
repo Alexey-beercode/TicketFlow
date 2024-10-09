@@ -28,14 +28,8 @@ public class BaseRepository<T> : IBaseRepository<T> where T: class,IHasId,ISoftD
 
     public async Task CreateAsync(T entity, CancellationToken cancellationToken = default)
     {
-        entity.CreatedAt=DateTime.Now;
+        entity.CreatedAt=DateTime.Now.ToUniversalTime();
         await _dbSet.AddAsync(entity, cancellationToken);
     }
-
-    public void Delete(T entity)
-    {
-        entity.IsDeleted = true;
-        entity.DeletedAt=DateTime.Now;
-        _dbSet.Update(entity);
-    }
+    
 }

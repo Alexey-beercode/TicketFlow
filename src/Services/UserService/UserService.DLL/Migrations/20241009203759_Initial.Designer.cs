@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UserService.DLL.Configuration;
@@ -11,9 +12,11 @@ using UserService.DLL.Configuration;
 namespace UserService.DLL.Migrations
 {
     [DbContext(typeof(UserDbContext))]
-    partial class UserDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241009203759_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -60,7 +63,7 @@ namespace UserService.DLL.Migrations
                         },
                         new
                         {
-                            Id = new Guid("844f07cf-707a-475b-81d3-18d529a46d4c"),
+                            Id = new Guid("4196600d-b0b9-4175-8fc8-2481fb0f1b50"),
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DeletedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
@@ -82,8 +85,7 @@ namespace UserService.DLL.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -94,6 +96,7 @@ namespace UserService.DLL.Migrations
                         .HasColumnType("character varying(256)");
 
                     b.Property<string>("RefreshToken")
+                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
@@ -120,7 +123,7 @@ namespace UserService.DLL.Migrations
                             DeletedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin@gmail.com",
                             IsDeleted = false,
-                            PasswordHash = "$2a$11$lFxiohVcdqf6w1haIKP2Me.Ycws5HgQLMsal12VnZS4EbL7TF1jHG",
+                            PasswordHash = "$2a$11$ysIaNKoEeTwbREc8PUuuSuzhylORt5k8gG3ZoQdQDm8WbLohdR64u",
                             RefreshToken = "",
                             RefreshTokenExpiryTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserName = "Admin"
@@ -158,7 +161,7 @@ namespace UserService.DLL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("715d6fe3-b093-4b03-9a37-aa914a1e5ad1"),
+                            Id = new Guid("cdccbd43-84ea-4c1c-9966-012844bad823"),
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DeletedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,

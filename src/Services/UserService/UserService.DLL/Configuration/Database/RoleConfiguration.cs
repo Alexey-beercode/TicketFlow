@@ -2,30 +2,25 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using UserService.Domain.Entities;
 
-namespace UserService.DLL.Configuration.Database;
-
-public class RoleConfiguration : IEntityTypeConfiguration<Role>
+namespace UserService.DLL.Configuration.Database
 {
-    public void Configure(EntityTypeBuilder<Role> builder)
+    public class RoleConfiguration : IEntityTypeConfiguration<Role>
     {
-        builder.ToTable("Roles");
-        builder.HasKey(r => r.Id);
-        
-        builder.Property(r => r.Name)
-            .IsRequired()
-            .HasMaxLength(256);
+        public void Configure(EntityTypeBuilder<Role> builder)
+        {
+            builder.ToTable("Roles");
 
-        builder.Property(r => r.IsDeleted)
-            .HasDefaultValue(false);
+            builder.HasKey(r => r.Id);
 
-        builder.Property(r => r.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            builder.Property(r => r.Name)
+                .IsRequired()
+                .HasMaxLength(100);
 
-        builder.Property(r => r.DeletedAt)
-            .IsRequired(false);
+            builder.Property(r => r.IsDeleted)
+                .IsRequired();
 
-        builder.HasIndex(r => r.NormalizedName)
-            .IsUnique();
+            builder.HasIndex(r => r.Name)
+                .IsUnique();
+        }
     }
 }

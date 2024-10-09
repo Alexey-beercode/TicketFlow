@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
-using IdentityModel.Client;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using UserService.BLL.DTOs.Request.User;
-using UserService.BLL.DTOs.Response.Token;
+using UserService.BLL.DTOs.Response.Auth;
 using UserService.BLL.Exceptions;
+using UserService.BLL.Helpers;
 using UserService.BLL.Interfaces;
 using UserService.DLL.Repositories.Interfaces;
 using UserService.Domain.Entities;
@@ -15,31 +14,24 @@ public class AuthService:IAuthService
 {
     private readonly ILogger<AuthService> _logger;
     private readonly IMapper _mapper;
-    private readonly UserManager<User> _userManager;
     private readonly ITokenService _tokenService;
     private readonly IUnitOfWork _unitOfWork;
 
-    public AuthService(ILogger<AuthService> logger, IMapper mapper, UserManager<User> userManager, ITokenService tokenService, IUnitOfWork unitOfWork)
+    public AuthService(
+        ILogger<AuthService> logger, 
+        IMapper mapper, 
+        ITokenService tokenService, 
+        IUnitOfWork unitOfWork)
     {
         _logger = logger;
         _mapper = mapper;
-        _userManager = userManager;
         _tokenService = tokenService;
         _unitOfWork = unitOfWork;
     }
-
-    private void EnsureSuccessOrThrow(IdentityResult identityResult, string operation = "Operation")
-    {
-        if (!identityResult.Succeeded)
-        {
-            var errors = string.Join("\n", identityResult.Errors.Select(e => e.Description));
-            throw new AuthorizationException($"{operation} failed: {errors}");
-        }
-    }
     
-    private async Task<User> FindUserByNameOrThrowAsync(string name)
+    private async Task<User> FindUserByNameOrThrowAsync(string name,CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByNameAsync(name);
+        var user = await _unitOfWork.Users.GetByNameAsync(name, cancellationToken);
         if (user==null )
         {
             throw new EntityNotFoundException($"User with name : {name} is not found");
@@ -48,9 +40,9 @@ public class AuthService:IAuthService
         return user;
     }
 
-    private async Task CheckPasswordAsync(User user, string password)
+    private async Task CheckPasswordAsync(string oldPassword, string newPassword)
     {
-        var isPasswordCorrect = await _userManager.CheckPasswordAsync(user, password);
+        var isPasswordCorrect = PasswordHelper.VerifyPassword(oldPassword, newPassword);
         if (!isPasswordCorrect)
         {
             throw new AuthorizationException("Password is incorrect");
@@ -59,34 +51,55 @@ public class AuthService:IAuthService
 
     public async Task LogoutAsync(string refreshToken, CancellationToken cancellationToken = default)
     {
-        var revokeTokenResponse = await _tokenService.RevokeTokenAsync(refreshToken, cancellationToken);
-        if (revokeTokenResponse.IsError) throw new AuthorizationException(revokeTokenResponse.Error);
+        var user = await _unitOfWork.Users.GetByRefreshTokenAsync(refreshToken, cancellationToken);
+
+        if (user==null)
+        {
+            throw new EntityNotFoundException("User not found");
+        }
+
+        user.RefreshToken = string.Empty;
+        user.RefreshTokenExpiryTime = DateTime.MinValue;
+
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Successfully logged out");
     }
 
     public async Task ChangePasswordAsync(ChangePasswordDto changePasswordDto, CancellationToken cancellationToken = default)
     {
-        var user = await FindUserByNameOrThrowAsync(changePasswordDto.UserName);
+        var user = await FindUserByNameOrThrowAsync(changePasswordDto.UserName,cancellationToken);
         
-        await CheckPasswordAsync(user, changePasswordDto.CurrentPassword);
+        await CheckPasswordAsync(user.PasswordHash, changePasswordDto.CurrentPassword);
+
+        user.PasswordHash = PasswordHelper.HashPassword(changePasswordDto.NewPassword);
         
-        var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.CurrentPassword, changePasswordDto.NewPassword);
-        
-        EnsureSuccessOrThrow(result, "Password change");
+        _logger.LogInformation("Successful changed password");
     }
 
-    public async Task<TokenDto> AuthenticateAsync(LoginDto loginDto, CancellationToken cancellationToken = default)
+    public async Task<AuthDto> AuthenticateAsync(LoginDto loginDto, CancellationToken cancellationToken = default)
     {
-        var user = await FindUserByNameOrThrowAsync(loginDto.UserName);
+        var user = await FindUserByNameOrThrowAsync(loginDto.UserName,cancellationToken);
         
-        await CheckPasswordAsync(user, loginDto.Password);
-        var tokenDto = await _tokenService.GenerateToken(loginDto);
-        return tokenDto;
+        await CheckPasswordAsync(user.PasswordHash, loginDto.Password);
+
+        var roles = await _unitOfWork.Roles.GetRolesByUserIdAsync(user.Id, cancellationToken);
+        
+        var accessToken = _tokenService.GenerateAccessToken(user,roles);
+        var refreshTokenModel = _tokenService.GenerateRefreshToken();
+
+        user.RefreshToken = refreshTokenModel.RefreshToken;
+        user.RefreshTokenExpiryTime = refreshTokenModel.RefreshTokenExireTime;
+
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        
+        return new AuthDto(){RefreshToken = refreshTokenModel.RefreshToken,AccessToken = accessToken,UserId = user.Id};
 
     }
 
-    public async Task<TokenDto> RegisterAsync(RegisterUserDto registerUserDto, CancellationToken cancellationToken = default)
+    public async Task<AuthDto> RegisterAsync(RegisterUserDto registerUserDto, CancellationToken cancellationToken = default)
     {
         var userFromDb = await _unitOfWork.Users.GetByNameAsync(registerUserDto.Username, cancellationToken);
         if (userFromDb != null)
@@ -94,12 +107,39 @@ public class AuthService:IAuthService
             throw new AlreadyExistsException("user", "username", registerUserDto.Username);
         }
         var user = _mapper.Map<User>(registerUserDto);
-
-        var result = await _userManager.CreateAsync(user, registerUserDto.Password);
-        EnsureSuccessOrThrow(result, "User registration");
+        user.PasswordHash = PasswordHelper.HashPassword(registerUserDto.Password);
         
-        await _userManager.AddToRoleAsync(user, "Resident");
+        await _unitOfWork.Users.CreateAsync(user, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        _logger.LogInformation( "Successful user registration");
 
+        var residentRole = await _unitOfWork.Roles.GetByNameAsync("Resident", cancellationToken);
+        
+        await _unitOfWork.Roles.SetRoleToUserAsync(user.Id, residentRole.Id);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        
         return await AuthenticateAsync(_mapper.Map<LoginDto>(registerUserDto));
+    }
+
+    public async Task<AuthDto> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
+    {
+        var user = await _unitOfWork.Users.GetByRefreshTokenAsync(refreshToken, cancellationToken);
+        if (user==null)
+        {
+            throw new EntityNotFoundException("User not found");
+        }
+
+        var rolesByUser = await _unitOfWork.Roles.GetRolesByUserIdAsync(user.Id, cancellationToken);
+        
+        var accessToken = _tokenService.GenerateAccessToken(user,rolesByUser);
+        var refreshTokenModel = _tokenService.GenerateRefreshToken();
+
+        user.RefreshToken = refreshTokenModel.RefreshToken;
+        user.RefreshTokenExpiryTime = refreshTokenModel.RefreshTokenExireTime;
+
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return new AuthDto() { RefreshToken = refreshToken, AccessToken = accessToken,UserId = user.Id};
     }
 }

@@ -1,75 +1,69 @@
-﻿using AutoMapper;
-using Duende.IdentityServer.Models;
-using IdentityModel.Client;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using UserService.BLL.DTOs.Request.User;
-using UserService.BLL.DTOs.Response.Token;
+using Microsoft.IdentityModel.Tokens;
 using UserService.BLL.Interfaces;
+using UserService.Domain.Entities;
+using UserService.Domain.Models;
 
 namespace UserService.BLL.Services;
 
 public class TokenService:ITokenService
 {
     private readonly IConfiguration _configuration;
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly IMapper _mapper;
-    private readonly ILogger<TokenService> _logger;
 
-    public TokenService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IMapper mapper, ILogger<TokenService> logger)
+    public TokenService(IConfiguration configuration)
     {
         _configuration = configuration;
-        _httpClientFactory = httpClientFactory;
-        _mapper = mapper;
-        _logger = logger;
     }
 
-    public async Task<TokenDto> GenerateToken(LoginDto loginDto)
+    public string GenerateAccessToken(User user, IEnumerable<Role> roles)
     {
-        var client = _httpClientFactory.CreateClient();
-        var disco = await client.GetDiscoveryDocumentAsync(_configuration["IdentityServer:Authority"]);
+        var claims = CreateClaims(user, roles);
+        
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]));
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        if (disco.IsError) throw new Exception(disco.Error);
-        var address = disco.TokenEndpoint;
+        var jwtToken = new JwtSecurityToken(
+            issuer: _configuration["Jwt:Issuer"],
+            audience: _configuration["Jwt:Audience"],
+            claims: claims,
+            expires: DateTime.UtcNow.AddMinutes(int.Parse(_configuration["Jwt:Expire"])),
+            signingCredentials: credentials
+        );
+        var tokenHandler = new JwtSecurityTokenHandler();
+        return tokenHandler.WriteToken(jwtToken);
+    }
 
-        var tokenResponse = await client.RequestPasswordTokenAsync(new PasswordTokenRequest
+    public TokenModel GenerateRefreshToken()
+    {
+        int size = 64;
+        var randomNumber = new byte[size];
+        var refreshToken = string.Empty;
+        using (var rng = RandomNumberGenerator.Create())
         {
-            Address = address,
-            ClientId = _configuration["IdentityServer:ClientId"],
-            ClientSecret = _configuration["IdentityServer:ClientSecret"],
-            Scope = $"{_configuration["IdentityServer:Scope"]} openid profile offline_access", 
-            UserName = loginDto.UserName,
-            Password = loginDto.Password
-        });
-
-
-        if (tokenResponse.IsError) 
-        {
-            _logger.LogError("Token request failed: {Error}", tokenResponse.Error);
-            throw new Exception(tokenResponse.Error);
+            rng.GetBytes(randomNumber);
+            refreshToken=Convert.ToBase64String(randomNumber);
         }
+        
+        var expireTime= DateTime.UtcNow.AddDays(_configuration.GetSection("Jwt:RefreshTokenExpirationDays").Get<int>());
 
-        _logger.LogInformation("Successful authorization by user with name : {LoginDtoUserName}", loginDto.UserName);
-    
-        return _mapper.Map<TokenDto>(tokenResponse);
+        return new TokenModel()
+            { RefreshToken = refreshToken, RefreshTokenExireTime =expireTime };
     }
-    
-    public async Task<TokenRevocationResponse> RevokeTokenAsync(string refreshToken,CancellationToken cancellationToken=default)
+
+    private List<Claim> CreateClaims(User user, IEnumerable<Role> roles)
     {
-        var client = _httpClientFactory.CreateClient();
-        var disco = await client.GetDiscoveryDocumentAsync("https://localhost:44334");
-
-        if (disco.IsError) throw new Exception(disco.Error);
-
-        var revokeTokenResponse = await client.RevokeTokenAsync(new TokenRevocationRequest
+        var claims = new List<Claim>
         {
-            Address = disco.RevocationEndpoint,
-            ClientId = _configuration["IdentityServer:ClientId"],
-            ClientSecret = _configuration["IdentityServer:ClientSecret"],
-            Token = refreshToken,
-            TokenTypeHint = "refresh_token"
-        });
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Name, user.UserName),
+        };
 
-        return revokeTokenResponse;
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role.Name)));
+        return claims;
     }
+
 }

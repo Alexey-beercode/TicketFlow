@@ -3,9 +3,7 @@ using UserService.Domain.Interfaces;
 
 namespace UserService.Domain.Entities;
 
-public class Role:IdentityRole<Guid>,ISoftDeletable,IHasId
+public class Role:BaseEntity
 {
-    public bool IsDeleted { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime? DeletedAt { get; set; }
+    public string Name { get; set; }
 }

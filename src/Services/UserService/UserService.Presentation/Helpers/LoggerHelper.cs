@@ -3,7 +3,6 @@
 public class LoggerHelper<T>
 {
     private readonly ILogger<T> _logger;
-
     public LoggerHelper(ILogger<T> logger)
     {
         _logger = logger;
@@ -21,5 +20,4 @@ public class LoggerHelper<T>
     {
         _logger.LogInformation("Successfuly {ResultOperation} after {ProcessName} process",resultOperation,processName);
     }
-    
 }

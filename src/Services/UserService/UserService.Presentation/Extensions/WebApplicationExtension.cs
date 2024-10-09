@@ -1,7 +1,4 @@
-﻿using NLog;
-using NLog.Web;
-using UserService.Domain.Middleware;
-using LogLevel = NLog.LogLevel;
+﻿using UserService.Domain.Middleware;
 
 namespace UserService.Domain.Extensions;
 
@@ -28,7 +25,6 @@ public static class WebApplicationExtension
                 .AllowCredentials();
         }); 
         
-        app.UseIdentityServer();
         app.UseAuthentication();
         app.UseAuthorization();
 

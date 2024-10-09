@@ -73,7 +73,7 @@ public class ExceptionHandlingMiddleware
             details = exception.StackTrace
         });
         
-        _logger.LogError(exception.Message);
+        _logger.LogError(result);
         
         return context.Response.WriteAsync(result);
     }

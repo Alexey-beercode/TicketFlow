@@ -18,5 +18,5 @@ var app = builder.Build();
 
 app.AddSwagger();
 app.AddApplicationMiddleware();
-logger.Log(LogLevel.Error,"Program initial");
+logger.Log(LogLevel.Info,"Program initial");
 app.Run();

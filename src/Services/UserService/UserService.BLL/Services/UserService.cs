@@ -1,48 +1,67 @@
 ﻿using AutoMapper;
-using Microsoft.Extensions.Logging;
+using UserService.BLL.DTOs.Response.Role;
 using UserService.BLL.DTOs.Response.User;
 using UserService.BLL.Exceptions;
 using UserService.BLL.Interfaces;
 using UserService.DLL.Repositories.Interfaces;
+using UserService.Domain.Entities;
 
 namespace UserService.BLL.Services;
 
 public class UserService:IUserService
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ILogger<UserService> _logger;
     private readonly IMapper _mapper;
 
-    public UserService(IUnitOfWork unitOfWork, ILogger<UserService> logger, IMapper mapper)
+    public UserService(IUnitOfWork unitOfWork, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
-        _logger = logger;
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<UserDto>> GetAllAsync(CancellationToken cancellationToken = default)
+    private async Task<UserResponseDto> CreateUserDtoWithRolesAsync(User user, CancellationToken cancellationToken = default)
+    {
+        var userDto = _mapper.Map<UserResponseDto>(user);
+        
+        var rolesByUser = await _unitOfWork.Roles.GetRolesByUserIdAsync(user.Id, cancellationToken);
+        userDto.Roles = rolesByUser.Select(role=>_mapper.Map<RoleDto>(role)).ToList();
+        
+        return userDto;
+    }
+    
+    public async Task<IEnumerable<UserResponseDto>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         var usersFromDb = await _unitOfWork.Users.GetAllAsync(cancellationToken);
-        return usersFromDb.Select(user => _mapper.Map<UserDto>(user)).ToList();
+        var usersResponses = new List<UserResponseDto>();
+        foreach (var user in usersFromDb)
+        {
+            var userResponseDto = await CreateUserDtoWithRolesAsync(user,cancellationToken);
+            usersResponses.Add(userResponseDto);
+        }
+
+        return usersResponses;
     }
 
-    public async Task<UserDto> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<UserResponseDto> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        var userFromDb = await _unitOfWork.Users.GetByIdAsync(userId, cancellationToken);
-        if (userFromDb==null)
+        var user = await _unitOfWork.Users.GetByIdAsync(userId, cancellationToken);
+        if (user==null)
         {
             throw new EntityNotFoundException("User", userId);
         }
-        return _mapper.Map<UserDto>(userFromDb);
+        
+        var userResponseDto = await CreateUserDtoWithRolesAsync(user,cancellationToken);
+        return userResponseDto;
     }
 
-    public async Task<UserDto> GetByUserNameAsync(string userName, CancellationToken cancellationToken = default)
+    public async Task<UserResponseDto> GetByUserNameAsync(string userName, CancellationToken cancellationToken = default)
     {
-        var userFromDb = await _unitOfWork.Users.GetByNameAsync(userName, cancellationToken);
-        if (userFromDb==null)
+        var user = await _unitOfWork.Users.GetByNameAsync(userName, cancellationToken);
+        if (user==null)
         {
             throw new EntityNotFoundException($"User with username : {userName} are not found");
         }
-        return _mapper.Map<UserDto>(userFromDb);
+        var userResponseDto = await CreateUserDtoWithRolesAsync(user,cancellationToken);
+        return userResponseDto; 
     }
 }
