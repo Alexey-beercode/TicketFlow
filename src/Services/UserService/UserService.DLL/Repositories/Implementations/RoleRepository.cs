@@ -67,7 +67,6 @@ public class RoleRepository:BaseRepository<Role>,IRoleRepository
     public async Task DeleteAsync(Role role, CancellationToken cancellationToken = default)
     {
         role.IsDeleted = true;
-        role.DeletedAt=DateTime.Now;
         _dbSet.Update(role);
         
         await _dbContext.UserRoles

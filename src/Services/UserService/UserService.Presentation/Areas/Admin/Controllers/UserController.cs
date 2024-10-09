@@ -48,4 +48,14 @@ public class UserController:ControllerBase
         _loggerHelper.LogEndOfOperation("getting user by username","return user");
         return Ok(user);
     }
+
+    [HttpDelete("delete/{userId}")]
+    public async Task<IActionResult> DeleteAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        _loggerHelper.LogStartRequest("delete user","id", userId.ToString());
+        await _userService.DeleteAsync(userId, cancellationToken);
+        
+        _loggerHelper.LogEndOfOperation("deleting user", "return ok response");
+        return Ok();
+    }
 }

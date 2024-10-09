@@ -7,4 +7,5 @@ public interface IUserService
    Task<IEnumerable<UserResponseDto>> GetAllAsync(CancellationToken cancellationToken = default);
    Task<UserResponseDto> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default);
    Task<UserResponseDto> GetByUserNameAsync(string userName, CancellationToken cancellationToken = default);
+   Task DeleteAsync(Guid userId, CancellationToken cancellationToken = default);
 }

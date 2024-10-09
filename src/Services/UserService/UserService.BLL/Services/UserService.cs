@@ -66,4 +66,18 @@ public class UserService:IUserService
         var userResponseDto = await CreateUserDtoWithRolesAsync(user,cancellationToken);
         return userResponseDto; 
     }
+
+    public async Task DeleteAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var user = await _unitOfWork.Users.GetByIdAsync(userId, cancellationToken);
+        if (user is null)
+        {
+            throw new EntityNotFoundException("User", userId);
+        }
+        
+        user.DeletedAt=DateTime.UtcNow;
+
+        await _unitOfWork.Users.DeleteAsync(user, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+    }
 }

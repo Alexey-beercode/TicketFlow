@@ -110,6 +110,7 @@ public class AuthService:IAuthService
         
         var user = _mapper.Map<User>(registerUserDto);
         user.PasswordHash = PasswordHelper.HashPassword(registerUserDto.Password);
+        user.CreatedAt=DateTime.UtcNow;
         
         await _unitOfWork.Users.CreateAsync(user, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

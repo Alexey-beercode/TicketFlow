@@ -35,7 +35,6 @@ public class UserRepository:BaseRepository<User>,IUserRepository
     public async Task DeleteAsync(User user, CancellationToken cancellationToken = default)
     {
         user.IsDeleted = true;
-        user.DeletedAt=DateTime.Now;
         _dbSet.Update(user);
         
         await _dbContext.UserRoles
