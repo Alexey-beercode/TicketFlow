@@ -11,9 +11,11 @@ using UserService.BLL.Infrastructure.Mapper;
 using UserService.BLL.Infrastructure.Validators;
 using UserService.BLL.Interfaces;
 using UserService.BLL.Services;
+using UserService.DLL;
 using UserService.DLL.Configuration;
 using UserService.DLL.Repositories.Implementations;
 using UserService.DLL.Repositories.Interfaces;
+using UserService.DLL.UnitOfWork;
 using ITokenService = UserService.BLL.Interfaces.ITokenService;
 
 namespace UserService.Domain.Extensions;

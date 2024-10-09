@@ -14,6 +14,7 @@ public class ChangePasswordDtoValidator : AbstractValidator<ChangePasswordDto>
             .NotEmpty().WithMessage("Current password is required.");
 
         RuleFor(x => x.NewPassword)
+            .NotEqual(x=>x.CurrentPassword)
             .NotEmpty().WithMessage("New password is required.")
             .MinimumLength(6).WithMessage("New password must be at least 6 characters long.");
     }

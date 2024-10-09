@@ -4,6 +4,7 @@ using UserService.BLL.DTOs.Response.Role;
 using UserService.BLL.Exceptions;
 using UserService.BLL.Interfaces;
 using UserService.DLL.Repositories.Interfaces;
+using UserService.DLL.UnitOfWork;
 
 namespace UserService.BLL.Services;
 
@@ -19,11 +20,12 @@ public class RoleService:IRoleService
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
+    
     public async Task<IEnumerable<RoleDto>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         var rolesFromDb = await _unitOfWork.Roles.GetAllAsync(cancellationToken);
     
-        var rolesDtos = rolesFromDb.Select(role => _mapper.Map<RoleDto>(role)).ToList();
+        var rolesDtos = _mapper.Map<IEnumerable<RoleDto>>(rolesFromDb);
     
         _logger.LogInformation("Roles have been obtained");
     
@@ -33,12 +35,12 @@ public class RoleService:IRoleService
     public async Task<RoleDto> GetByIdAsync(Guid roleId, CancellationToken cancellationToken = default)
     {
         var role = await _unitOfWork.Roles.GetByIdAsync(roleId, cancellationToken);
-        if (role==null)
+        if (role is null)
         {
             throw new EntityNotFoundException("Role", roleId);
         }
+        
         _logger.LogInformation("Role with id : {Id} has been obtained from db", roleId);
         return _mapper.Map<RoleDto>(role);
     }
-    
 }

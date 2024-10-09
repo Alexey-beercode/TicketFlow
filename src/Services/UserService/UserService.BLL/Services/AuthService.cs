@@ -6,6 +6,7 @@ using UserService.BLL.Exceptions;
 using UserService.BLL.Helpers;
 using UserService.BLL.Interfaces;
 using UserService.DLL.Repositories.Interfaces;
+using UserService.DLL.UnitOfWork;
 using UserService.Domain.Entities;
 
 namespace UserService.BLL.Services;
@@ -32,7 +33,7 @@ public class AuthService:IAuthService
     private async Task<User> FindUserByNameOrThrowAsync(string name,CancellationToken cancellationToken)
     {
         var user = await _unitOfWork.Users.GetByNameAsync(name, cancellationToken);
-        if (user==null )
+        if (user is null)
         {
             throw new EntityNotFoundException($"User with name : {name} is not found");
         }
@@ -53,7 +54,7 @@ public class AuthService:IAuthService
     {
         var user = await _unitOfWork.Users.GetByRefreshTokenAsync(refreshToken, cancellationToken);
 
-        if (user==null)
+        if (user is null)
         {
             throw new EntityNotFoundException("User not found");
         }
@@ -102,10 +103,11 @@ public class AuthService:IAuthService
     public async Task<AuthDto> RegisterAsync(RegisterUserDto registerUserDto, CancellationToken cancellationToken = default)
     {
         var userFromDb = await _unitOfWork.Users.GetByNameAsync(registerUserDto.Username, cancellationToken);
-        if (userFromDb != null)
+        if (userFromDb is not null)
         {
             throw new AlreadyExistsException("user", "username", registerUserDto.Username);
         }
+        
         var user = _mapper.Map<User>(registerUserDto);
         user.PasswordHash = PasswordHelper.HashPassword(registerUserDto.Password);
         
@@ -124,7 +126,7 @@ public class AuthService:IAuthService
     public async Task<AuthDto> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
     {
         var user = await _unitOfWork.Users.GetByRefreshTokenAsync(refreshToken, cancellationToken);
-        if (user==null)
+        if (user is null)
         {
             throw new EntityNotFoundException("User not found");
         }

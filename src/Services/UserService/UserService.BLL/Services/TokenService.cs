@@ -33,6 +33,7 @@ public class TokenService:ITokenService
             expires: DateTime.UtcNow.AddMinutes(int.Parse(_configuration["Jwt:Expire"])),
             signingCredentials: credentials
         );
+        
         var tokenHandler = new JwtSecurityTokenHandler();
         return tokenHandler.WriteToken(jwtToken);
     }
