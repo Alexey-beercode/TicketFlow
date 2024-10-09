@@ -1,6 +1,10 @@
-﻿namespace BookingService.Domain.Common;
+﻿using BookingService.Domain.Interfaces.Entities;
+using UserService.Domain.Interfaces;
 
-public class BaseEntity
+namespace BookingService.Domain.Common;
+
+public class BaseEntity:IHasId,ISoftDeletable
 {
-    
+    public Guid Id { get; set; }
+    public bool IsDeleted { get; set; }
 }
