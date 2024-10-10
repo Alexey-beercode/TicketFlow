@@ -1,4 +1,6 @@
-﻿namespace BookingService.Application.DTOs.Response.Coupon;
+﻿using BookingService.Application.DTOs.Response.DiscountType;
+
+namespace BookingService.Application.DTOs.Response.Coupon;
 
 public class CouponResponseDto
 {
@@ -9,5 +11,5 @@ public class CouponResponseDto
     public int MaxUses { get; set; }
     public int UsedCount { get; set; }
     public DateTime ValidUntil { get; set; }
-    public Domain.Entities.DiscountType DiscountType { get; set; }
+    public DiscountTypeResponseDto DiscountType { get; set; }
 }

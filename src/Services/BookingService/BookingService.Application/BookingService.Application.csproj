@@ -7,11 +7,20 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="UseCases\" />
+      <Folder Include="UseCases\Coupon\" />
+      <Folder Include="UseCases\SeatType\" />
+      <Folder Include="UseCases\TicketStatus\" />
+      <Folder Include="UseCases\Ticket\" />
+      <Folder Include="UseCases\TripType\" />
+      <Folder Include="UseCases\Trip\" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\BookingService.Domain\BookingService.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="StackExchange.Redis" Version="2.8.16" />
     </ItemGroup>
 
 </Project>
