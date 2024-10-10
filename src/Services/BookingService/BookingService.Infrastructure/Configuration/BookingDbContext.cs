@@ -22,5 +22,6 @@ public class BookingDbContext:DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        
     }
 }

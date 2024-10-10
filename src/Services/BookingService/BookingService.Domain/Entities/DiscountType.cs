@@ -1,6 +1,8 @@
-﻿namespace BookingService.Domain.Entities;
+﻿using BookingService.Domain.Common;
 
-public class DiscountType
+namespace BookingService.Domain.Entities;
+
+public class DiscountType:BaseEntity
 {
     public string Name { get; set; }
 }

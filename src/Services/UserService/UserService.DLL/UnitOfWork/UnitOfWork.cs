@@ -3,7 +3,7 @@ using UserService.DLL.Repositories.Interfaces;
 
 namespace UserService.DLL.UnitOfWork;
 
-public class UnitOfWork:IUnitOfWork
+public class UnitOfWork : IUnitOfWork
 {
     private readonly UserDbContext _dbContext;
     private readonly IUserRepository _userRepository;
@@ -16,15 +16,15 @@ public class UnitOfWork:IUnitOfWork
         _userRepository = userRepository;
         _roleRepository = roleRepository;
     }
-    
+
     public IUserRepository Users => _userRepository;
     public IRoleRepository Roles => _roleRepository;
- 
-    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken=default)
+
+    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         return await _dbContext.SaveChangesAsync(cancellationToken);
     }
-    
+
     public void Dispose()
     {
         Dispose(true);

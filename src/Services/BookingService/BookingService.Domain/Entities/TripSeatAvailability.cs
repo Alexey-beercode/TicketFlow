@@ -1,6 +1,8 @@
-﻿namespace BookingService.Domain.Entities;
+﻿using BookingService.Domain.Common;
 
-public class TripSeatAvailability
+namespace BookingService.Domain.Entities;
+
+public class TripSeatAvailability:BaseEntity
 {
     public int SeatsAvailable { get; set; }
     public Guid TripId { get; set; }
