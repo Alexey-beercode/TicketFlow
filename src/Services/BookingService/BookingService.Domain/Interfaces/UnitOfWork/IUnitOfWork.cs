@@ -1,6 +1,6 @@
 ﻿using BookingService.Domain.Interfaces.Repositories;
 
-namespace BookingService.Domain.Interfaces;
+namespace BookingService.Domain.Interfaces.UnitOfWork;
 
 public interface IUnitOfWork:IDisposable
 {

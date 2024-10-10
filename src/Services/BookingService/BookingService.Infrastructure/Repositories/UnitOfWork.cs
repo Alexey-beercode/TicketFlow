@@ -1,5 +1,6 @@
 ﻿using BookingService.Domain.Interfaces;
 using BookingService.Domain.Interfaces.Repositories;
+using BookingService.Domain.Interfaces.UnitOfWork;
 using BookingService.Infrastructure.Configuration;
 
 namespace BookingService.Infrastructure.Repositories;

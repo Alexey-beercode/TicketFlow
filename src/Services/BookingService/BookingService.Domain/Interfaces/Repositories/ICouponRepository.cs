@@ -10,5 +10,5 @@ public interface ICouponRepository
     Task<Coupon> GetByCodeAsync(string code, CancellationToken cancellationToken = default);
     Task<IEnumerable<Coupon>> GetByDiscountTypeIdAsync(Guid discountTypeId,
         CancellationToken cancellationToken = default);
-    Task DeleteAsync(Coupon coupon, CancellationToken cancellationToken);
+    Task DeleteAsync(Coupon coupon, CancellationToken cancellationToken=default);
 }

@@ -1,4 +1,5 @@
 ﻿using BookingService.Domain.Entities;
+using BookingService.Infrastructure.Configuration.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookingService.Infrastructure.Configuration;
@@ -22,6 +23,16 @@ public class BookingDbContext:DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.ApplyConfiguration(new CouponConfiguration());
+        modelBuilder.ApplyConfiguration(new DiscountTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new SeatTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new TicketConfiguration());
+        modelBuilder.ApplyConfiguration(new TicketStatusConfiguration());
+        modelBuilder.ApplyConfiguration(new TripConfiguration());
+        modelBuilder.ApplyConfiguration(new TripSeatAvailabilityConfiguration());
+        modelBuilder.ApplyConfiguration(new TripTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new UserCouponConfiguration());
     }
 }

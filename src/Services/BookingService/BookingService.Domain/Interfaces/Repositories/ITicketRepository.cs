@@ -9,6 +9,5 @@ public interface ITicketRepository:IBaseRepository<Ticket>
     Task<IEnumerable<Ticket>> GetByTripIdAsync(Guid tripAsync, CancellationToken cancellationToken = default);
     Task<IEnumerable<Ticket>> GetByCouponIdAsync(Guid couponId, CancellationToken cancellationToken = default);
     Task<IEnumerable<Ticket>> GetBySeatTypeIdAsync(Guid seatTypeId, CancellationToken cancellationToken = default);
-    Task CancelAsync(Ticket ticket, CancellationToken cancellationToken = default);
-    Task DeleteAsync(Ticket ticket, CancellationToken cancellationToken = default);
+    void Delete(Ticket ticket);
 }

@@ -10,4 +10,5 @@ public interface ITripRepository:IBaseRepository<Trip>
     Task<IEnumerable<Trip>> GetByArrivalCityAsync(string arrivalCity, CancellationToken cancellationToken = default);
     Task<IEnumerable<Trip>> GetByDepartureDateAsync(DateTime departureDate, CancellationToken cancellationToken = default);
     Task<IEnumerable<Trip>> SearchTripsAsync(string departureCity, string arrivalCity, DateTime departureDate, CancellationToken cancellationToken = default);
+    Task DeleteAsync(Trip trip, CancellationToken cancellationToken = default);
 }
