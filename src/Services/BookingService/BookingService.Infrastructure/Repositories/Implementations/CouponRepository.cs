@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookingService.Infrastructure.Repositories.Implementations
 {
-    public class CouponRepository : ICouponRepository
+    public class CouponRepository :BaseRepository<Coupon>,ICouponRepository
     {
         private readonly BookingDbContext _dbContext;
 
-        public CouponRepository(BookingDbContext dbContext)
+        public CouponRepository(BookingDbContext dbContext) : base(dbContext)
         {
             _dbContext = dbContext;
         }
@@ -66,6 +66,11 @@ namespace BookingService.Infrastructure.Repositories.Implementations
             await _dbContext.UsersCoupons
                 .Where(userCoupon => userCoupon.CounponId ==coupon.Id && !userCoupon.IsDeleted)
                 .ExecuteUpdateAsync(s => s.SetProperty(userCoupon => userCoupon.IsDeleted, true), cancellationToken);
+        }
+
+        public async Task AddCouponToUserAsync(UserCoupon userCoupon, CancellationToken cancellationToken = default)
+        {
+            await _dbContext.UsersCoupons.AddAsync(userCoupon, cancellationToken);
         }
     }
 }

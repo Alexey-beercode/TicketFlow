@@ -2,7 +2,7 @@
 
 namespace BookingService.Domain.Interfaces.Repositories;
 
-public interface ICouponRepository
+public interface ICouponRepository:IBaseRepository<Coupon>
 {
     Task<IEnumerable<Coupon>> GetActiveCouponsAsync(CancellationToken cancellationToken = default);
     Task<IEnumerable<Coupon>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
@@ -11,4 +11,5 @@ public interface ICouponRepository
     Task<IEnumerable<Coupon>> GetByDiscountTypeIdAsync(Guid discountTypeId,
         CancellationToken cancellationToken = default);
     Task DeleteAsync(Coupon coupon, CancellationToken cancellationToken=default);
+    Task AddCouponToUserAsync(UserCoupon userCoupon, CancellationToken cancellationToken = default);
 }

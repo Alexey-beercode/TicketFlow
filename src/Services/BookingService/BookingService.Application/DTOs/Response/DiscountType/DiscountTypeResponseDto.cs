@@ -1,7 +1,7 @@
-﻿namespace BookingService.Application.DTOs.Response.DiscountType;
+﻿using BookingService.Application.DTOs.BaseDtos;
 
-public class DiscountTypeResponseDto
+namespace BookingService.Application.DTOs.Response.DiscountType;
+
+public class DiscountTypeResponseDto:BaseTypeDto
 {
-    public Guid Id { get; set; }
-    public string Name { get; set; }
 }

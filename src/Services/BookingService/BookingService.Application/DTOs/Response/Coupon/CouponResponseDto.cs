@@ -1,10 +1,10 @@
-﻿using BookingService.Application.DTOs.Response.DiscountType;
+﻿using BookingService.Application.DTOs.BaseDtos;
+using BookingService.Application.DTOs.Response.DiscountType;
 
 namespace BookingService.Application.DTOs.Response.Coupon;
 
-public class CouponResponseDto
+public class CouponResponseDto:BaseDto
 {
-    public Guid Id { get; set; }
     public string Code { get; set; }
     public decimal DiscountValue { get; set; }
     public bool IsPersonalized { get; set; }

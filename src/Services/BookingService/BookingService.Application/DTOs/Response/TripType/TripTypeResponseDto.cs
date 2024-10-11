@@ -1,7 +1,7 @@
-﻿namespace BookingService.Application.DTOs.Response.TripType;
+﻿using BookingService.Application.DTOs.BaseDtos;
 
-public class TripTypeResponseDto
+namespace BookingService.Application.DTOs.Response.TripType;
+
+public class TripTypeResponseDto:BaseTypeDto
 {
-    public Guid Id { get; set; }
-    public string Name { get; set; }
 }

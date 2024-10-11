@@ -1,7 +1,7 @@
-﻿namespace BookingService.Application.DTOs.Response.TicketStatus;
+﻿using BookingService.Application.DTOs.BaseDtos;
 
-public class TicketStatusResponseDto
+namespace BookingService.Application.DTOs.Response.TicketStatus;
+
+public class TicketStatusResponseDto:BaseTypeDto
 {
-    public Guid Id { get; set; }
-    public string Name { get; set; }
 }
