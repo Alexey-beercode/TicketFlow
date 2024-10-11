@@ -1,32 +1,41 @@
 ﻿using System.Text.Json;
 using BookingService.Domain.Interfaces.Services;
+using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
 namespace BookingService.Application.Services;
 
 public class CacheService : ICacheService
 {
-    private readonly IConnectionMultiplexer _redis;
     private readonly IDatabase _db;
-
-    public CacheService(IConnectionMultiplexer redis)
+    private readonly ILogger<CacheService> _logger;
+    private static readonly JsonSerializerOptions _jsonOptions = new()
     {
-        _redis = redis;
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
+    public CacheService(IConnectionMultiplexer redis, ILogger<CacheService> logger)
+    {
+        _logger = logger;
         _db = redis.GetDatabase();
     }
 
-    public async Task<T> GetAsync<T>(string key)
+    public async Task<T?> GetAsync<T>(string key)
     {
+        _logger.LogDebug("Getting value for key: {Key}", key);
+        
         var value = await _db.StringGetAsync(key);
         if (!value.HasValue)
+        {
             return default;
-
-        return JsonSerializer.Deserialize<T>(value);
+        }
+        
+        return JsonSerializer.Deserialize<T>(value!, _jsonOptions);
     }
 
     public async Task SetAsync<T>(string key, T value, TimeSpan? expiration = null)
     {
-        var serializedValue = JsonSerializer.Serialize(value);
+        var serializedValue = JsonSerializer.Serialize(value, _jsonOptions);
         await _db.StringSetAsync(key, serializedValue, expiration);
     }
 
