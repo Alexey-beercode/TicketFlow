@@ -9,7 +9,14 @@
     <ItemGroup>
       <Folder Include="Extensions\" />
       <Folder Include="SignalrHubs\" />
-      <Folder Include="Validators\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FluentValidation" Version="11.10.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\BookingService.Application\BookingService.Application.csproj" />
     </ItemGroup>
 
 </Project>
