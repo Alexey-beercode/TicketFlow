@@ -1,6 +1,8 @@
 using System.Reflection;
 using System.Text;
 using BookingService.Application.Mappers;
+using BookingService.Application.UseCases.Trip.Create;
+using BookingService.Application.UseCases.Trip.GetAll;
 using BookingService.Domain.Interfaces.Repositories;
 using BookingService.Domain.Interfaces.UnitOfWork;
 using BookingService.Infrastructure.Configuration;
@@ -152,5 +154,8 @@ public static class WebApplicationBuilderExtension
     public static void AddMediatr(this WebApplicationBuilder builder)
     {
         builder.Services.AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()); });
+        builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(
+            typeof(GetAllTripsQuery).Assembly
+        ));
     }
 }
