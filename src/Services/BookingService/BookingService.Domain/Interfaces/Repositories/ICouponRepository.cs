@@ -12,4 +12,5 @@ public interface ICouponRepository:IBaseRepository<Coupon>
         CancellationToken cancellationToken = default);
     Task DeleteAsync(Coupon coupon, CancellationToken cancellationToken=default);
     Task AddCouponToUserAsync(UserCoupon userCoupon, CancellationToken cancellationToken = default);
+    Task<bool> IsUserActiveCoupon(Guid userId, Guid couponId, CancellationToken cancellationToken = default);
 }

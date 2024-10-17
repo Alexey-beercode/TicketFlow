@@ -72,5 +72,11 @@ namespace BookingService.Infrastructure.Repositories.Implementations
         {
             await _dbContext.UsersCoupons.AddAsync(userCoupon, cancellationToken);
         }
+
+        public Task<bool> IsUserActiveCoupon(Guid userId, Guid couponId, CancellationToken cancellationToken = default)
+        {
+            return _dbContext.UsersCoupons.AnyAsync(uc =>
+                uc.UserId == userId && uc.CounponId == couponId && !uc.IsUsed && !uc.IsDeleted);
+        }
     }
 }
