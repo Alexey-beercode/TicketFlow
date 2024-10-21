@@ -30,7 +30,8 @@ public class TicketConfiguration : IEntityTypeConfiguration<Ticket>
 
         builder.HasOne<Coupon>()
             .WithMany()
-            .HasForeignKey(t => t.CouponId);
+            .HasForeignKey(t => t.CouponId)
+            .IsRequired(false);
 
         builder.HasOne<SeatType>()
             .WithMany()

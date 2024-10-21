@@ -3,6 +3,7 @@ using BookingService.Application.UseCases.TicketStatus.GetAll;
 using BookingService.Application.UseCases.TicketStatus.GetById;
 using BookingService.Presentation.Helpers;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookingService.Presentation.Controllers;
@@ -25,11 +26,12 @@ public class TicketStatusController : ControllerBase
     public async Task<ActionResult<IEnumerable<TicketStatusResponseDto>>> GetAllTicketStatuses()
     {
         _logger.LogStartRequest("Get All Ticket Statuses");
-        var result = await _mediator.Send(new GetAllQuery());
+        var result = await _mediator.Send(new GetAllTicketStatusesQuery());
         _logger.LogEndOfOperation("Get All Ticket Statuses", "retrieved all ticket statuses");
         return Ok(result);
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

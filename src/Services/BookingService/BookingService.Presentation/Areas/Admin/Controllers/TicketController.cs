@@ -1,5 +1,6 @@
 ﻿using BookingService.Application.DTOs.Response.Ticket;
 using BookingService.Application.UseCases.Ticket.Delete;
+using BookingService.Application.UseCases.Ticket.GetAll;
 using BookingService.Application.UseCases.Ticket.GetBySeatType;
 using BookingService.Application.UseCases.Ticket.GetByStatusId;
 using BookingService.Presentation.Helpers;
@@ -31,7 +32,7 @@ public class AdminTicketController : ControllerBase
         _logger.LogStartRequest("Delete Ticket", "id", id.ToString());
         await _mediator.Send(new DeleteTicketCommand { TicketId = id });
         _logger.LogEndOfOperation("Delete Ticket", "deleted ticket");
-        return NoContent();
+        return Ok();
     }
 
     [HttpGet("seat-type/{seatTypeId}")]
@@ -51,6 +52,15 @@ public class AdminTicketController : ControllerBase
         _logger.LogStartRequest("Get Tickets by Status", "statusId", statusId.ToString());
         var result = await _mediator.Send(new GetByStatusIdQuery { StatusId = statusId });
         _logger.LogEndOfOperation("Get Tickets by Status", "retrieved tickets");
+        return Ok(result);
+    }
+    
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<TicketResponseDto>>> GetAllTickets()
+    {
+        _logger.LogStartRequest("Get Tickets");
+        var result = await _mediator.Send( new GetAllTicketsQuery());
+        _logger.LogEndOfOperation("Get Tickets", "retrieved tickets");
         return Ok(result);
     }
 }

@@ -1,5 +1,7 @@
 using System.Reflection;
 using System.Text;
+using BookingService.Application.Facades;
+using BookingService.Application.Interfaces.Facades;
 using BookingService.Application.Mappers;
 using BookingService.Application.UseCases.Trip.Create;
 using BookingService.Application.UseCases.Trip.GetAll;
@@ -69,6 +71,7 @@ public static class WebApplicationBuilderExtension
             typeof(TicketStatusProfile).Assembly,
             typeof(TripProfile).Assembly,
             typeof(TripSeatAvailabilityProfile).Assembly,
+            typeof(DiscountTypeProfile).Assembly,
             typeof(TripTypeProfile).Assembly
         );
     }
@@ -91,6 +94,8 @@ public static class WebApplicationBuilderExtension
         builder.Services.AddScoped<ITripRepository, TripRepository>();
         builder.Services.AddScoped<ITripTypeRepository, TripTypeRepository>();
         builder.Services.AddScoped<ITripSeatAvailabilityRepository, TripSeatAvailabilityRepository>();
+        builder.Services.AddScoped<ITicketFacade, TicketFacade>();
+        builder.Services.AddScoped<ITripFacade, TripFacade>();
         builder.Services.AddControllers();
     }
 
@@ -153,9 +158,10 @@ public static class WebApplicationBuilderExtension
 
     public static void AddMediatr(this WebApplicationBuilder builder)
     {
-        builder.Services.AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()); });
         builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(
+            typeof(GetAllTripsHandler).Assembly,
             typeof(GetAllTripsQuery).Assembly
         ));
+       
     }
 }

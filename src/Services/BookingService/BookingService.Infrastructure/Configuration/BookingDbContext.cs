@@ -1,5 +1,6 @@
 ﻿using BookingService.Domain.Entities;
 using BookingService.Infrastructure.Configuration.Database;
+using BookingService.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookingService.Infrastructure.Configuration;
@@ -9,6 +10,7 @@ public class BookingDbContext:DbContext
     public BookingDbContext(DbContextOptions<BookingDbContext> options)
         : base(options)
     {
+        Database.EnsureCreated();
     }
     
     public DbSet<Coupon> Coupons { get; set; }
@@ -34,5 +36,7 @@ public class BookingDbContext:DbContext
         modelBuilder.ApplyConfiguration(new TripSeatAvailabilityConfiguration());
         modelBuilder.ApplyConfiguration(new TripTypeConfiguration());
         modelBuilder.ApplyConfiguration(new UserCouponConfiguration());
+        
+        modelBuilder.SeedAllData();
     }
 }

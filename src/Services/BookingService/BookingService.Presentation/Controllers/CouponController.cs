@@ -5,6 +5,7 @@ using BookingService.Application.UseCases.Coupon.GetByUserId;
 using BookingService.Application.UseCases.Coupon.GetUsedByUser;
 using BookingService.Presentation.Helpers;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookingService.Presentation.Controllers;
@@ -32,6 +33,7 @@ public class CouponController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize]
     [HttpGet("by-code/{code}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -43,6 +45,7 @@ public class CouponController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize]
     [HttpGet("by-user/{userId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<CouponResponseDto>>> GetCouponsByUser(Guid userId)
@@ -53,6 +56,7 @@ public class CouponController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize]
     [HttpGet("used-by-user/{userId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<CouponResponseDto>>> GetUsedCouponsByUser(Guid userId)

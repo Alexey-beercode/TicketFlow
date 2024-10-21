@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BookingService.Application.Exceptions;
+using BookingService.Domain.Entities;
 using BookingService.Domain.Interfaces.UnitOfWork;
 using MediatR;
 
@@ -18,68 +19,62 @@ public class CreateTicketHandler : IRequestHandler<CreateTicketCommand>
 
     public async Task Handle(CreateTicketCommand request, CancellationToken cancellationToken)
     {
-        await ValidateEntitiesExistenceAsync(request, cancellationToken);
+        var (trip, seatType, seatAvailability, ticketStatus) = await GetAndValidateEntitiesAsync(request, cancellationToken);
 
-        var trip = await _unitOfWork.Trips.GetByIdAsync(request.TripId, cancellationToken);
-        var seatType = await _unitOfWork.SeatTypes.GetByIdAsync(request.SeatTypeId, cancellationToken);
+        var (couponId, discountValue) = await ProcessCouponAsync(request, trip.BasePrice, cancellationToken);
+
+        var finalPrice = trip.BasePrice * seatType.PriceMultiplier - discountValue;
+        
+        await CreateTicket(request, ticketStatus.Id, couponId, finalPrice);
+        
+        await UpdateSeatAndCouponAsync(seatAvailability, couponId, cancellationToken);
+    }
+    
+    private async Task<(Domain.Entities.Trip trip, Domain.Entities.SeatType seatType, TripSeatAvailability
+            seatAvailability, Domain.Entities.TicketStatus ticketStatus)>
+        GetAndValidateEntitiesAsync(CreateTicketCommand request, CancellationToken cancellationToken)
+    {
+        var trip = await _unitOfWork.Trips.GetByIdAsync(request.TripId, cancellationToken)
+                   ?? throw new EntityNotFoundException("Trip not found");
+
+        var seatType = await _unitOfWork.SeatTypes.GetByIdAsync(request.SeatTypeId, cancellationToken)
+                       ?? throw new EntityNotFoundException("SeatType not found");
+
+        var seatAvailability =
+            await _unitOfWork.TripSeatAvailabilities.GetAvailableByTripIdAndSeatTypeIdAsync(request.TripId,
+                request.SeatTypeId, cancellationToken)
+            ?? throw new InvalidOperationException("No available seats for this seat type on this trip");
+
         var ticketStatus = await _unitOfWork.TicketStatuses.GetByNameAsync("Booked", cancellationToken);
 
-        decimal discountValue = 0;
-        if (!string.IsNullOrEmpty(request.CouponCode))
-        {
-            var coupon = await _unitOfWork.Coupons.GetByCodeAsync(request.CouponCode, cancellationToken);
-            if (coupon != null)
-            {
-                await ValidateCoupon(coupon, request.UserId, cancellationToken);
-                discountValue = await CalculateDiscountValue(coupon, trip.BasePrice, cancellationToken);
-            }
-        }
-
-        var finalPrice = CalculateFinalPrice(trip.BasePrice, seatType.PriceMultiplier, discountValue);
-
-        var ticket = _mapper.Map<Domain.Entities.Ticket>(request);
-        ticket.Price = finalPrice;
-        ticket.StatusId = ticketStatus.Id;
-
-        await _unitOfWork.Tickets.CreateAsync(ticket, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        return (trip, seatType, seatAvailability, ticketStatus);
     }
-
-    private async Task ValidateEntitiesExistenceAsync(CreateTicketCommand request, CancellationToken cancellationToken=default)
+    
+    private async Task<(Guid? couponId, decimal discountValue)> ProcessCouponAsync(CreateTicketCommand request, decimal basePrice, CancellationToken cancellationToken)
     {
-        var entityChecks = new List<(string EntityName, Task<object> EntityTask)>
-        {
-            ("Trip", _unitOfWork.Trips.GetByIdAsync(request.TripId, cancellationToken).ContinueWith(t => (object)t.Result, cancellationToken)),
-            ("TicketStatus", _unitOfWork.TicketStatuses.GetByIdAsync(request.StatusId, cancellationToken).ContinueWith(t => (object)t.Result, cancellationToken)),
-            ("SeatType", _unitOfWork.SeatTypes.GetByIdAsync(request.SeatTypeId, cancellationToken).ContinueWith(t => (object)t.Result, cancellationToken))
-        };
+        if (string.IsNullOrEmpty(request.CouponCode))
+            return (null, 0);
 
-        await Task.WhenAll(entityChecks.Select(e => e.EntityTask));
+        var coupon = await _unitOfWork.Coupons.GetByCodeAsync(request.CouponCode, cancellationToken)
+                      ?? throw new CouponApplyException("Coupon not found");
 
-        foreach (var (entityName, entityTask) in entityChecks)
-        {
-            var entity = await entityTask;
-            if (entity == null)
-            {
-                throw new EntityNotFoundException($"{entityName} not found");
-            }
-        }
+        await ValidateCouponAsync(coupon, request.UserId, cancellationToken);
+
+        var discountValue = await CalculateDiscountValueAsync(coupon, basePrice, cancellationToken);
+
+        return (coupon.Id, discountValue);
     }
-
-    private async Task ValidateCoupon(Domain.Entities.Coupon coupon, Guid userId, CancellationToken cancellationToken)
+    
+    private async Task ValidateCouponAsync(Domain.Entities.Coupon coupon, Guid userId, CancellationToken cancellationToken)
     {
         if (coupon.IsPersonalized && !await _unitOfWork.Coupons.IsUserActiveCoupon(userId, coupon.Id, cancellationToken))
-        {
-            throw new CouponApplyException("User can't use this coupon");
-        }
+            throw new CouponApplyException("User cannot use this coupon");
 
         if (coupon.UsedCount >= coupon.MaxUses || coupon.ValidUntil < DateTime.UtcNow)
-        {
-            throw new CouponApplyException("Coupon is invalid");
-        }
+            throw new CouponApplyException("Coupon is invalid or expired");
     }
-
-    private async Task<decimal> CalculateDiscountValue(Domain.Entities.Coupon coupon, decimal basePrice, CancellationToken cancellationToken)
+    
+    private async Task<decimal> CalculateDiscountValueAsync(Domain.Entities.Coupon coupon, decimal basePrice, CancellationToken cancellationToken)
     {
         var discountType = await _unitOfWork.DiscountTypes.GetByIdAsync(coupon.DiscountTypeId, cancellationToken);
         return discountType.Name switch
@@ -89,9 +84,29 @@ public class CreateTicketHandler : IRequestHandler<CreateTicketCommand>
             _ => 0
         };
     }
-
-    private static decimal CalculateFinalPrice(decimal basePrice, decimal priceMultiplier, decimal discount)
+    
+    private async Task CreateTicket(CreateTicketCommand request, Guid statusId, Guid? couponId, decimal finalPrice)
     {
-        return basePrice * priceMultiplier - discount;
+        var ticket = _mapper.Map<Domain.Entities.Ticket>(request);
+        ticket.Price = finalPrice;
+        ticket.StatusId = statusId;
+        ticket.CouponId = couponId;
+        
+        await _unitOfWork.Tickets.CreateAsync(ticket);
+    }
+    
+    private async Task UpdateSeatAndCouponAsync(TripSeatAvailability seatAvailability, Guid? couponId, CancellationToken cancellationToken)
+    {
+        seatAvailability.SeatsAvailable--;
+        _unitOfWork.TripSeatAvailabilities.Update(seatAvailability);
+
+        if (couponId.HasValue)
+        {
+            var coupon = await _unitOfWork.Coupons.GetByIdAsync(couponId.Value, cancellationToken);
+            coupon.UsedCount++;
+            _unitOfWork.Coupons.Update(coupon);
+        }
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

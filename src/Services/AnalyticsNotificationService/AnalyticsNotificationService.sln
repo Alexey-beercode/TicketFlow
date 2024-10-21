@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnalyticsNotificationServic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnalyticsNotificationService.BLL", "AnalyticsNotificationService.BLL\AnalyticsNotificationService.BLL.csproj", "{1E2429A8-BCE5-4ACF-A0A4-E4196F88B751}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnalyticsNotificationService.DLL", "AnalyticsNotificationService.DLL\AnalyticsNotificationService.DLL.csproj", "{0DD2110B-D7E6-484F-863E-248F497885C7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnalyticsNotificationService.DAL", "AnalyticsNotificationService.DAL\AnalyticsNotificationService.DAL.csproj", "{0DD2110B-D7E6-484F-863E-248F497885C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

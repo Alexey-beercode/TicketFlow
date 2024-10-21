@@ -16,4 +16,11 @@ public class TripSeatAvailabilityRepository:BaseRepository<TripSeatAvailability>
         return _dbSet.Where(availability => availability.TripId == tripId && !availability.IsDeleted)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<TripSeatAvailability> GetAvailableByTripIdAndSeatTypeIdAsync(Guid tripId, Guid seatTypeId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbSet.FirstOrDefaultAsync(availability =>
+            !availability.IsDeleted && availability.TripId == tripId && availability.SeatTypeId == seatTypeId,cancellationToken);
+    }
 }

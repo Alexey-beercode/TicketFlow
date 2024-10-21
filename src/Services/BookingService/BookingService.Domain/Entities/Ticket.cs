@@ -8,6 +8,6 @@ public class Ticket:BaseEntity
     public Guid UserId { get; set; }
     public Guid TripId { get; set; }
     public Guid StatusId { get; set; }
-    public Guid CouponId { get; set; }
+    public Guid? CouponId { get; set; }
     public Guid SeatTypeId { get; set; }
 }

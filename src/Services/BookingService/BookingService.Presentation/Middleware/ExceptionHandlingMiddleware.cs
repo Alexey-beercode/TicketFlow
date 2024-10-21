@@ -61,11 +61,13 @@ public class ExceptionHandlingMiddleware
             case AlreadyExistsException:
                 response.StatusCode = (int)HttpStatusCode.Conflict;
                 break;
+            case CouponApplyException:
+                response.StatusCode = (int)HttpStatusCode.NotAcceptable;
+                break;
             default:
                 response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 break;
         }
-        
         
         var result = JsonConvert.SerializeObject(new 
         {

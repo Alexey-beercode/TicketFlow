@@ -4,6 +4,7 @@ using BookingService.Application.UseCases.Ticket.GetById;
 using BookingService.Application.UseCases.Ticket.GetByUserId;
 using BookingService.Presentation.Helpers;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookingService.Presentation.Controllers;
@@ -21,6 +22,7 @@ public class TicketController : ControllerBase
         _logger = new LoggerHelper<TicketController>(logger);
     }
 
+    [Authorize]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -43,6 +45,7 @@ public class TicketController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize]
     [HttpGet("user/{userId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<TicketResponseDto>>> GetTicketsByUserId(Guid userId)

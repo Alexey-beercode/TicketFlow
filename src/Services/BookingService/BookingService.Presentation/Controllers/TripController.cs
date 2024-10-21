@@ -23,7 +23,6 @@ public class TripController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<TripResponseDto>>> GetAllTrips()
     {
         _logger.LogStartRequest("Get All Trips");

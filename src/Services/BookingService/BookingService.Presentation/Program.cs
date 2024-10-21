@@ -12,6 +12,7 @@ builder.AddIdentity();
 builder.AddValidation();
 builder.AddSwaggerDocumentation();
 builder.AddLogging();
+builder.AddMediatr();
 
 var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 var app = builder.Build();
