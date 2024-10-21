@@ -14,8 +14,9 @@ using UserService.BLL.Services;
 using UserService.DLL;
 using UserService.DLL.Configuration;
 using UserService.DLL.Repositories.Implementations;
-using UserService.DLL.Repositories.Interfaces;
 using UserService.DLL.UnitOfWork;
+using UserService.Domain.Interfaces.Repositories;
+using UserService.Domain.Interfaces.UnitOfWork;
 using ITokenService = UserService.BLL.Interfaces.ITokenService;
 
 namespace UserService.Domain.Extensions;
@@ -62,8 +63,7 @@ public static class WebApplicationBuilderExtension
     {
         builder.Services.AddAutoMapper(
             typeof(UserProfile).Assembly,
-            typeof(RoleProfile).Assembly,
-            typeof(TokenProfile).Assembly
+            typeof(RoleProfile).Assembly
         );
     }
 
@@ -80,7 +80,7 @@ public static class WebApplicationBuilderExtension
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IRoleRepository, RoleRepository>();
         builder.Services.AddScoped<IAuthService, AuthService>();
-        builder.Services.AddScoped<IRoleService,RoleService>();
+        builder.Services.AddScoped<IRoleService, RoleService>();
         builder.Services.AddScoped<ITokenService, TokenService>();
         builder.Services.AddScoped<IUserService, BLL.Services.UserService>();
         builder.Services.AddControllers();
@@ -130,16 +130,13 @@ public static class WebApplicationBuilderExtension
             };
         });
 
-    builder.Services.AddAuthorization(options =>
-    {
-        options.DefaultPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
-            .RequireAuthenticatedUser()
-            .Build();
+        builder.Services.AddAuthorization(options =>
+        {
+            options.DefaultPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
+                .RequireAuthenticatedUser()
+                .Build();
 
-        options.AddPolicy("Admin", policy => { policy.RequireRole("Admin"); });
-    });
-    
-    
-}
-
+            options.AddPolicy("Admin", policy => { policy.RequireRole("Admin"); });
+        });
+    }
 }

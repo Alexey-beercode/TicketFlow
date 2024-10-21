@@ -3,8 +3,8 @@ using Microsoft.Extensions.Logging;
 using UserService.BLL.DTOs.Response.Role;
 using UserService.BLL.Exceptions;
 using UserService.BLL.Interfaces;
-using UserService.DLL.Repositories.Interfaces;
 using UserService.DLL.UnitOfWork;
+using UserService.Domain.Interfaces.UnitOfWork;
 
 namespace UserService.BLL.Services;
 

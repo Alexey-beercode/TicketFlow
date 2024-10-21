@@ -66,7 +66,6 @@ public class ExceptionHandlingMiddleware
                 break;
         }
         
-        
         var result = JsonConvert.SerializeObject(new 
         {
             error = exception.Message,

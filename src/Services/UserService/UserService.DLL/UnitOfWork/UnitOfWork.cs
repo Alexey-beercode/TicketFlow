@@ -1,5 +1,6 @@
 ﻿using UserService.DLL.Configuration;
-using UserService.DLL.Repositories.Interfaces;
+using UserService.Domain.Interfaces.Repositories;
+using UserService.Domain.Interfaces.UnitOfWork;
 
 namespace UserService.DLL.UnitOfWork;
 

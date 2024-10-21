@@ -1,6 +1,6 @@
-﻿using UserService.DLL.Repositories.Interfaces;
+﻿using UserService.Domain.Interfaces.Repositories;
 
-namespace UserService.DLL.UnitOfWork;
+namespace UserService.Domain.Interfaces.UnitOfWork;
 
 public interface IUnitOfWork:IDisposable
 {

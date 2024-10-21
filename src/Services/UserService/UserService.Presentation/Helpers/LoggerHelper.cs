@@ -3,10 +3,12 @@
 public class LoggerHelper<T>
 {
     private readonly ILogger<T> _logger;
+    
     public LoggerHelper(ILogger<T> logger)
     {
         _logger = logger;
     }
+    
     public void LogStartRequest(string operationName, string paramName = "", string paramValue = "")
     {
         if (paramName=="")

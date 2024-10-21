@@ -1,6 +1,6 @@
 ﻿using UserService.Domain.Entities;
 
-namespace UserService.DLL.Repositories.Interfaces;
+namespace UserService.Domain.Interfaces.Repositories;
 
 public interface IUserRepository:IBaseRepository<User>
 {

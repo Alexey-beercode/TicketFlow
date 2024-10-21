@@ -66,5 +66,4 @@ public class TokenService:ITokenService
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role.Name)));
         return claims;
     }
-
 }

@@ -5,9 +5,9 @@ using UserService.BLL.DTOs.Response.Auth;
 using UserService.BLL.Exceptions;
 using UserService.BLL.Helpers;
 using UserService.BLL.Interfaces;
-using UserService.DLL.Repositories.Interfaces;
 using UserService.DLL.UnitOfWork;
 using UserService.Domain.Entities;
+using UserService.Domain.Interfaces.UnitOfWork;
 
 namespace UserService.BLL.Services;
 
@@ -28,26 +28,6 @@ public class AuthService:IAuthService
         _mapper = mapper;
         _tokenService = tokenService;
         _unitOfWork = unitOfWork;
-    }
-    
-    private async Task<User> FindUserByNameOrThrowAsync(string name,CancellationToken cancellationToken)
-    {
-        var user = await _unitOfWork.Users.GetByNameAsync(name, cancellationToken);
-        if (user is null)
-        {
-            throw new EntityNotFoundException($"User with name : {name} is not found");
-        }
-
-        return user;
-    }
-
-    private async Task CheckPasswordAsync(string oldPassword, string newPassword)
-    {
-        var isPasswordCorrect = PasswordHelper.VerifyPassword(oldPassword, newPassword);
-        if (!isPasswordCorrect)
-        {
-            throw new AuthorizationException("Password is incorrect");
-        }
     }
 
     public async Task LogoutAsync(string refreshToken, CancellationToken cancellationToken = default)
@@ -72,7 +52,7 @@ public class AuthService:IAuthService
     {
         var user = await FindUserByNameOrThrowAsync(changePasswordDto.UserName,cancellationToken);
         
-        await CheckPasswordAsync(user.PasswordHash, changePasswordDto.CurrentPassword);
+        CheckPassword(user.PasswordHash, changePasswordDto.CurrentPassword);
 
         user.PasswordHash = PasswordHelper.HashPassword(changePasswordDto.NewPassword);
         
@@ -83,7 +63,7 @@ public class AuthService:IAuthService
     {
         var user = await FindUserByNameOrThrowAsync(loginDto.UserName,cancellationToken);
         
-        await CheckPasswordAsync(user.PasswordHash, loginDto.Password);
+        CheckPassword(user.PasswordHash, loginDto.Password);
 
         var roles = await _unitOfWork.Roles.GetRolesByUserIdAsync(user.Id, cancellationToken);
         
@@ -144,5 +124,25 @@ public class AuthService:IAuthService
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new AuthDto() { RefreshToken = refreshToken, AccessToken = accessToken,UserId = user.Id};
+    }
+    
+    private async Task<User> FindUserByNameOrThrowAsync(string name,CancellationToken cancellationToken)
+    {
+        var user = await _unitOfWork.Users.GetByNameAsync(name, cancellationToken);
+        if (user is null)
+        {
+            throw new EntityNotFoundException($"User with name : {name} is not found");
+        }
+
+        return user;
+    }
+
+    private void CheckPassword(string oldPassword, string newPassword)
+    {
+        var isPasswordCorrect = PasswordHelper.VerifyPassword(oldPassword, newPassword);
+        if (!isPasswordCorrect)
+        {
+            throw new AuthorizationException("Password is incorrect");
+        }
     }
 }

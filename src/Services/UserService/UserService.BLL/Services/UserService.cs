@@ -3,9 +3,9 @@ using UserService.BLL.DTOs.Response.Role;
 using UserService.BLL.DTOs.Response.User;
 using UserService.BLL.Exceptions;
 using UserService.BLL.Interfaces;
-using UserService.DLL.Repositories.Interfaces;
 using UserService.DLL.UnitOfWork;
 using UserService.Domain.Entities;
+using UserService.Domain.Interfaces.UnitOfWork;
 
 namespace UserService.BLL.Services;
 

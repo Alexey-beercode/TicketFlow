@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using UserService.DLL.Configuration;
-using UserService.DLL.Repositories.Interfaces;
 using UserService.Domain.Interfaces;
+using UserService.Domain.Interfaces.Repositories;
 
 namespace UserService.DLL.Repositories.Implementations;
 
@@ -30,5 +30,4 @@ public class BaseRepository<T> : IBaseRepository<T> where T: class,IHasId,ISoftD
     {
         await _dbSet.AddAsync(entity, cancellationToken);
     }
-    
 }

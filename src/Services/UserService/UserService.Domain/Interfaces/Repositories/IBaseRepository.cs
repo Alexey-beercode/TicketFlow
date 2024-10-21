@@ -1,6 +1,4 @@
-﻿using UserService.Domain.Interfaces;
-
-namespace UserService.DLL.Repositories.Interfaces;
+﻿namespace UserService.Domain.Interfaces.Repositories;
 
 public interface IBaseRepository<T> where T:IHasId,ISoftDeletable
 {

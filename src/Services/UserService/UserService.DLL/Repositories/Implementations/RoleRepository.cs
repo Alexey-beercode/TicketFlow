@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using UserService.DLL.Configuration;
-using UserService.DLL.Repositories.Interfaces;
 using UserService.Domain.Entities;
+using UserService.Domain.Interfaces.Repositories;
 
 namespace UserService.DLL.Repositories.Implementations;
 
@@ -21,7 +21,6 @@ public class RoleRepository:BaseRepository<Role>,IRoleRepository
             .ToListAsync(cancellationToken);
     }
     
-
     public async Task<bool> SetRoleToUserAsync(Guid userId, Guid roleId, CancellationToken cancellationToken = default)
     {
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
