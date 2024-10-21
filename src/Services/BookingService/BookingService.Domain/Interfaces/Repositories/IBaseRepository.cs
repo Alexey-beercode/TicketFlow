@@ -1,6 +1,5 @@
 ﻿using BookingService.Domain.Common;
 using BookingService.Domain.Interfaces.Entities;
-using UserService.Domain.Interfaces;
 
 namespace BookingService.Domain.Interfaces.Repositories;
 

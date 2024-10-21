@@ -1,4 +1,4 @@
-﻿namespace UserService.Domain.Interfaces;
+﻿namespace BookingService.Domain.Interfaces.Entities;
 
 public interface IHasId
 {

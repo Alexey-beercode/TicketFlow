@@ -10,7 +10,7 @@ public class BookingDbContext:DbContext
     public BookingDbContext(DbContextOptions<BookingDbContext> options)
         : base(options)
     {
-        Database.EnsureCreated();
+        Database.Migrate();
     }
     
     public DbSet<Coupon> Coupons { get; set; }

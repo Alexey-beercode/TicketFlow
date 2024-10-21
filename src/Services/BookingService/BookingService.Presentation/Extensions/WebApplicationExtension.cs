@@ -31,7 +31,5 @@ public static class WebApplicationExtension
         app.MapControllers();
         
         app.UseMiddleware<ExceptionHandlingMiddleware>();
-        
-        
     }
 }

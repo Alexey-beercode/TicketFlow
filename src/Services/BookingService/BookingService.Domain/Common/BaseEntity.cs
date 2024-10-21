@@ -1,5 +1,4 @@
 ﻿using BookingService.Domain.Interfaces.Entities;
-using UserService.Domain.Interfaces;
 
 namespace BookingService.Domain.Common;
 

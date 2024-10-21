@@ -3,7 +3,6 @@ using BookingService.Domain.Interfaces.Entities;
 using BookingService.Domain.Interfaces.Repositories;
 using BookingService.Infrastructure.Configuration;
 using Microsoft.EntityFrameworkCore;
-using UserService.Domain.Interfaces;
 
 namespace BookingService.Infrastructure.Repositories.Implementations;
 

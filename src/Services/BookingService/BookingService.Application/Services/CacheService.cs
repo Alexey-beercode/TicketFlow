@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using BookingService.Domain.Interfaces.Services;
+using BookingService.Application.Interfaces.Services;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
@@ -9,6 +9,7 @@ public class CacheService : ICacheService
 {
     private readonly IDatabase _db;
     private readonly ILogger<CacheService> _logger;
+    
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase

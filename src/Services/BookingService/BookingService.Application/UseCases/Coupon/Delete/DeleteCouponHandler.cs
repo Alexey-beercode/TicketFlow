@@ -26,6 +26,7 @@ public class DeleteCouponHandler:IRequestHandler<DeleteCouponCommand>
         }
 
         _logger.LogInformation("Deleting coupon with id : {Id}",request.Id);
+        
         await _unitOfWork.Coupons.DeleteAsync(coupon, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }

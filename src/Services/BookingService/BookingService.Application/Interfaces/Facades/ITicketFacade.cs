@@ -6,7 +6,6 @@ namespace BookingService.Application.Interfaces.Facades;
 public interface ITicketFacade
 {
     Task<TicketResponseDto> GetFullTicketInfoAsync(Ticket ticket,CancellationToken cancellationToken=default);
-
     Task<List<TicketResponseDto>> GetListOfFullTicketInfoAsync(IEnumerable<Ticket> tickets,
         CancellationToken cancellationToken = default);
 }

@@ -11,7 +11,6 @@ public class CouponProfile : Profile
     {
         CreateMap<CreateCouponCommand, Coupon>()
             .ForMember(dest => dest.Id, opt => opt.Ignore());
-        
         CreateMap<Coupon, CouponResponseDto>();
     }
 }

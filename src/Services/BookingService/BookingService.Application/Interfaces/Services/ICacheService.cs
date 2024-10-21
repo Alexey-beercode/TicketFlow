@@ -1,4 +1,4 @@
-﻿namespace BookingService.Domain.Interfaces.Services;
+﻿namespace BookingService.Application.Interfaces.Services;
 
 public interface ICacheService
 {

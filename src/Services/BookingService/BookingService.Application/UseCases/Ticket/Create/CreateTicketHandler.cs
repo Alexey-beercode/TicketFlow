@@ -53,8 +53,10 @@ public class CreateTicketHandler : IRequestHandler<CreateTicketCommand>
     private async Task<(Guid? couponId, decimal discountValue)> ProcessCouponAsync(CreateTicketCommand request, decimal basePrice, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(request.CouponCode))
+        {
             return (null, 0);
-
+        }
+        
         var coupon = await _unitOfWork.Coupons.GetByCodeAsync(request.CouponCode, cancellationToken)
                       ?? throw new CouponApplyException("Coupon not found");
 
@@ -67,11 +69,16 @@ public class CreateTicketHandler : IRequestHandler<CreateTicketCommand>
     
     private async Task ValidateCouponAsync(Domain.Entities.Coupon coupon, Guid userId, CancellationToken cancellationToken)
     {
-        if (coupon.IsPersonalized && !await _unitOfWork.Coupons.IsUserActiveCoupon(userId, coupon.Id, cancellationToken))
+        if (coupon.IsPersonalized &&
+            !await _unitOfWork.Coupons.IsUserActiveCoupon(userId, coupon.Id, cancellationToken))
+        {
             throw new CouponApplyException("User cannot use this coupon");
-
+        }
+        
         if (coupon.UsedCount >= coupon.MaxUses || coupon.ValidUntil < DateTime.UtcNow)
+        {
             throw new CouponApplyException("Coupon is invalid or expired");
+        }
     }
     
     private async Task<decimal> CalculateDiscountValueAsync(Domain.Entities.Coupon coupon, decimal basePrice, CancellationToken cancellationToken)
