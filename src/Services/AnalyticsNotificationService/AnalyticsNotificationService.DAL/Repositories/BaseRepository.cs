@@ -1,6 +1,6 @@
 ﻿using AnalyticsNotificationService.DLL.Infrastructure.Database;
 using AnalyticsNotificationService.DLL.Interfaces.Repositories;
-using AnalyticsNotificationService.Domain.Interfaces;
+using AnalyticsNotificationService.Domain.Common;
 using MongoDB.Driver;
 
 namespace AnalyticsNotificationService.DLL.Repositories;

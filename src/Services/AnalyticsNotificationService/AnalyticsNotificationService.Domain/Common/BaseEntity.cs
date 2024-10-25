@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace AnalyticsNotificationService.Domain.Interfaces;
+namespace AnalyticsNotificationService.Domain.Common;
 
 public abstract class BaseEntity
 {

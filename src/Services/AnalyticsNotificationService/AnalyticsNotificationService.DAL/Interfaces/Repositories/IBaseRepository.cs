@@ -1,4 +1,4 @@
-﻿using AnalyticsNotificationService.Domain.Interfaces;
+﻿using AnalyticsNotificationService.Domain.Common;
 
 namespace AnalyticsNotificationService.DLL.Interfaces.Repositories;
 

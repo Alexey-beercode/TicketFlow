@@ -13,6 +13,21 @@ public class NotificationDbContext
     {
         var client = new MongoClient(settings.Value.ConnectionString);
         _database = client.GetDatabase(settings.Value.DatabaseName);
+        CreateCollections();
+    }
+
+    private void CreateCollections()
+    {
+        var collections = _database.ListCollectionNames().ToList();
+
+        if (!collections.Contains("Notifications"))
+            _database.CreateCollection("Notifications");
+
+        if (!collections.Contains("Analytics"))
+            _database.CreateCollection("Analytics");
+
+        if (!collections.Contains("MetricTypes"))
+            _database.CreateCollection("MetricTypes");
     }
 
     public IMongoCollection<T> GetCollection<T>(string name)
